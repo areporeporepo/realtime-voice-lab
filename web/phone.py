@@ -14,12 +14,67 @@ Derived from twilio-samples/speech-assistant-openai-realtime-api-python
 (MIT, (c) 2024 pkamp); the timing/truncation logic below is theirs.
 """
 import base64
+import hashlib
+import hmac
 import json
 import os
+import time
+import urllib.parse
 
 import websockets
 from fastapi import Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
+
+# --- who is allowed to open a media stream ---------------------------------
+# The browser path is gated by ACCESS_KEY, but /media-stream is a raw WebSocket
+# that Twilio opens on the caller's behalf, so it cannot carry that key. Left
+# open, anyone who found the URL could stream audio and spend our OpenAI credit
+# with no gate at all.
+#
+# Two independent controls, so neither is a single point of failure:
+#   1. /incoming-call verifies Twilio's X-Twilio-Signature (only Twilio can
+#      mint a valid one, because it is HMAC-SHA1 over the URL and POST body
+#      keyed by our auth token).
+#   2. /incoming-call embeds a short-lived HMAC ticket in the wss:// URL it
+#      returns, and /media-stream refuses any connection without a valid,
+#      unexpired one. This works even before Twilio credentials are configured.
+STREAM_TICKET_TTL = 120          # seconds between TwiML fetch and stream open
+_SECRET_FALLBACK = os.urandom(32)
+
+
+def _ticket_secret():
+    """Prefer the Twilio auth token so tickets survive a restart; fall back to
+    a per-process random secret, which fails closed rather than open."""
+    tok = os.getenv("TWILIO_AUTH_TOKEN")
+    return tok.encode() if tok else _SECRET_FALLBACK
+
+
+def _mint_ticket():
+    exp = str(int(time.time()) + STREAM_TICKET_TTL)
+    sig = hmac.new(_ticket_secret(), exp.encode(), hashlib.sha256).hexdigest()[:32]
+    return f"{exp}.{sig}"
+
+
+def _check_ticket(ticket):
+    try:
+        exp, sig = (ticket or "").split(".", 1)
+    except ValueError:
+        return False
+    want = hmac.new(_ticket_secret(), exp.encode(), hashlib.sha256).hexdigest()[:32]
+    if not hmac.compare_digest(sig, want):
+        return False
+    return int(exp) >= int(time.time())
+
+
+def _twilio_signature_ok(url, form, header_sig):
+    """Twilio signs the full URL plus sorted POST params with HMAC-SHA1."""
+    token = os.getenv("TWILIO_AUTH_TOKEN")
+    if not token:
+        return None                      # not configured; caller decides
+    payload = url + "".join(f"{k}{form[k]}" for k in sorted(form))
+    digest = base64.b64encode(
+        hmac.new(token.encode(), payload.encode(), hashlib.sha1).digest()).decode()
+    return hmac.compare_digest(digest, header_sig or "")
 
 LOGGED = {
     "error", "response.done", "rate_limits.updated",
@@ -54,16 +109,41 @@ def register(app, *, model, voice, instructions, schemas, tools, api_key, trace)
     async def incoming_call(request: Request):
         """TwiML that hands the call's audio to /media-stream."""
         host = request.headers.get("x-forwarded-host") or request.url.hostname
-        trace("call_in", {"host": host})
+
+        # Twilio posts application/x-www-form-urlencoded. Parsing it directly
+        # avoids pulling in python-multipart just to read a flat body.
+        form = {}
+        if request.method == "POST":
+            raw = (await request.body()).decode("utf-8", "replace")
+            form = {k: v[0] for k, v in urllib.parse.parse_qs(raw).items()}
+        # Cloudflare terminates TLS, so rebuild the URL Twilio actually signed.
+        public_url = f"https://{host}{request.url.path}"
+        ok = _twilio_signature_ok(public_url, form,
+                                  request.headers.get("x-twilio-signature"))
+        if ok is False:
+            trace("call_rejected", {"reason": "bad twilio signature", "host": host})
+            return HTMLResponse(status_code=403, content="forbidden")
+        if ok is None:
+            # No TWILIO_AUTH_TOKEN yet. The HMAC ticket still gates the stream,
+            # but say so plainly rather than looking secure when it is not.
+            print("[phone] WARNING: TWILIO_AUTH_TOKEN unset, "
+                  "webhook signature not verified")
+
+        trace("call_in", {"host": host, "sig_verified": bool(ok)})
+        ticket = urllib.parse.quote(_mint_ticket())
         # Deliberately no <Say> preamble: the greeting is the model's job, and a
         # canned English line is wrong for a Vietnamese or Mandarin caller.
         xml = (f'<?xml version="1.0" encoding="UTF-8"?><Response>'
-               f'<Connect><Stream url="wss://{host}/media-stream" /></Connect>'
-               f'</Response>')
+               f'<Connect><Stream url="wss://{host}/media-stream?t={ticket}" />'
+               f'</Connect></Response>')
         return HTMLResponse(content=xml, media_type="application/xml")
 
     @app.websocket("/media-stream")
-    async def media_stream(ws: WebSocket):
+    async def media_stream(ws: WebSocket, t: str = ""):
+        if not _check_ticket(t):
+            trace("stream_rejected", {"reason": "missing or expired ticket"})
+            await ws.close(code=1008)          # policy violation
+            return
         await ws.accept()
         print("[phone] caller connected")
 

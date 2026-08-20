@@ -186,7 +186,10 @@ async function start() {
   $('go').disabled = true;
   try {
     status('minting token...');
-    const s = await fetch('/session', { method: 'POST' });
+    // Forward the access key from our own URL (?k=...) so the server can gate
+    // who is allowed to spend OpenAI credit.
+    const k = new URLSearchParams(location.search).get('k') || '';
+    const s = await fetch('/session?k=' + encodeURIComponent(k), { method: 'POST' });
     if (!s.ok) throw new Error((await s.text()).slice(0, 300));
     const { token, model: m } = await s.json();
     if (!token) throw new Error('no token in /session response');

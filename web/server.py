@@ -29,6 +29,26 @@ MODEL = os.getenv("REALTIME_MODEL", "gpt-realtime-2.1")
 VOICE = os.getenv("REALTIME_VOICE", "marin")
 TRACE = os.path.join(HERE, "trace.jsonl")
 
+# --- abuse / cost guard -----------------------------------------------------
+# A public URL means anyone who finds it can spend our OpenAI credit. ACCESS_KEY
+# gates who may mint a session; the caps bound the worst case even if it leaks.
+ACCESS_KEY = os.getenv("ACCESS_KEY", "")
+MAX_SESSIONS_PER_HOUR = int(os.getenv("MAX_SESSIONS_PER_HOUR", "30"))
+MAX_TOOLS_PER_HOUR = int(os.getenv("MAX_TOOLS_PER_HOUR", "600"))
+_hits = {"session": [], "tool": []}
+
+
+def _rate_limit(bucket, ceiling):
+    """Rolling one-hour counter. Raises 429 when the ceiling is reached."""
+    now = time.time()
+    stamps = _hits[bucket]
+    stamps[:] = [t for t in stamps if now - t < 3600]
+    if len(stamps) >= ceiling:
+        _trace("rate_limited", {"bucket": bucket, "ceiling": ceiling})
+        raise HTTPException(
+            429, f"{bucket} limit reached ({ceiling}/hour). Try again later.")
+    stamps.append(now)
+
 INSTRUCTIONS = (
     "You are a private-markets research analyst speaking out loud. You have "
     "live access to 32,374 SEC Form D private-offering filings from January "
@@ -67,8 +87,13 @@ def index():
 
 
 @app.post("/session")
-def session():
+def session(k: str = ""):
     """Mint an ephemeral client token with our persona and tools baked in."""
+    if ACCESS_KEY and k != ACCESS_KEY:
+        _trace("denied", {"reason": "bad access key"})
+        raise HTTPException(403, "Access key required. Append ?k=<key> to the URL.")
+    _rate_limit("session", MAX_SESSIONS_PER_HOUR)
+
     body = json.dumps({
         "session": {
             "type": "realtime",
@@ -102,6 +127,7 @@ def session():
 @app.post("/api/tool")
 async def api_tool(request: Request):
     """Execute one Form D tool call relayed by the client."""
+    _rate_limit("tool", MAX_TOOLS_PER_HOUR)
     body = await request.json()
     name = body.get("name")
     args = body.get("arguments") or {}

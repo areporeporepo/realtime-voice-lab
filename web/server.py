@@ -130,9 +130,27 @@ def _api_key():
 
 
 def _trace(kind, payload):
-    """Append one event to the trace log. This is the cost/protocol dataset."""
-    with open(TRACE, "a") as f:
-        f.write(json.dumps({"t": time.time(), "kind": kind, **payload}) + "\n")
+    """Append one event to the trace log. This is the cost/protocol dataset.
+
+    Best-effort: on a container the filesystem is ephemeral and may be
+    read-only, and losing an analytics line must never fail a live call."""
+    try:
+        with open(TRACE, "a") as f:
+            f.write(json.dumps({"t": time.time(), "kind": kind, **payload}) + "\n")
+    except Exception:                                       # noqa: BLE001
+        pass
+
+
+@app.get("/healthz")
+def healthz():
+    """Liveness for the platform health check. Confirms the database is really
+    readable, not just that the process is up: a served page with a broken DB
+    is worse than a machine that fails its check and gets replaced."""
+    try:
+        n = TOOLS["market_stats"]()["filings"]
+    except Exception as e:                                  # noqa: BLE001
+        raise HTTPException(503, f"database unavailable: {e}")
+    return JSONResponse({"ok": True, "filings_visible": n, "model": MODEL})
 
 
 @app.get("/")

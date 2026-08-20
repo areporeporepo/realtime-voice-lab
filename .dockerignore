@@ -1,0 +1,16 @@
+# Explicit allowlist behaviour: exclude everything noisy, but do NOT exclude
+# formd/formd.db. Fly's builder falls back to .gitignore when this file is
+# missing, and .gitignore has *.db, which would silently ship an image with no
+# database in it.
+.git
+.venv
+__pycache__
+*.pyc
+.env
+.env.op
+.cloudflared-token
+twilio-base
+docs/superpowers
+web/trace.jsonl
+*.md
+!requirements.txt

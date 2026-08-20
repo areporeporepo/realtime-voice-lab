@@ -1,0 +1,42 @@
+app = "hienhoa-voice"
+primary_region = "sjc"   # San Jose: closest to Palo Alto, the current tester.
+                         # For Vietnamese callers add "sin" as a second region;
+                         # the OpenAI inference hop to the US is unavoidable
+                         # either way, but /session and /api/tool get closer.
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
+  REALTIME_MODEL = "gpt-realtime-2.1"
+  REALTIME_VOICE = "marin"
+  MAX_SESSIONS_PER_HOUR = "20"
+  MAX_TOOLS_PER_HOUR = "600"
+  # Secrets (OPENAI_API_KEY, ACCESS_KEY) come from `fly secrets set`, never here.
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false   # A stopped machine means a caller hears silence
+  min_machines_running = 1     # while it cold-starts. Not acceptable on a phone
+  auto_start_machines = true   # call, so keep one warm.
+
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 40
+    soft_limit = 25
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"   # SQLite is memory-mapped and the app is I/O bound on
+                     # WebSockets, so CPU and RAM are not the constraint.
+
+[checks.up]
+  type = "http"
+  port = 8080
+  method = "GET"
+  path = "/healthz"
+  interval = "30s"
+  timeout = "5s"
+  grace_period = "20s"

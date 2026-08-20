@@ -1,0 +1,21 @@
+.env.op
+  s_b6590482fc13dc::t_6a4715690afc56 3-6
+run_web.sh
+  s_b6590482fc13dc::t_34555e066cd5df 24-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "077c2c36042e987a7e78c91dc70aa98ba13fd907",
+  "prompts": {},
+  "sessions": {
+    "s_b6590482fc13dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d4bccff0-af0d-41ee-a6d3-0a19575667ad",
+        "model": "claude-opus-5"
+      },
+      "human_author": "anh nguyen <anh.nqqq@icloud.com>"
+    }
+  }
+}

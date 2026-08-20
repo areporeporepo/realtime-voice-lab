@@ -1,0 +1,21 @@
+web/phone.py
+  s_b6590482fc13dc::t_33cc64715fd354 1-175
+web/server.py
+  s_b6590482fc13dc::t_2d4d746ed699c4 220-227
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "09936a3c9bbbbe5bcabdd32b1b60ba67229d3f2e",
+  "prompts": {},
+  "sessions": {
+    "s_b6590482fc13dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d4bccff0-af0d-41ee-a6d3-0a19575667ad",
+        "model": "claude-opus-5"
+      },
+      "human_author": "anh nguyen <anh.nqqq@icloud.com>"
+    }
+  }
+}

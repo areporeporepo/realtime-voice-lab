@@ -1,0 +1,6 @@
+# Minimum floors, not exact pins, so security patches are picked up.
+fastapi>=0.115
+uvicorn>=0.34
+websockets>=14
+twilio>=9.4
+python-dotenv>=1.0

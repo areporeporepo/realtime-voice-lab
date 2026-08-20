@@ -1,0 +1,11 @@
+.venv/
+.env
+*.db
+__pycache__/
+*.pyc
+web/trace.jsonl
+trace.jsonl
+
+# Reference clones, not part of this project
+ocvoice/
+.env.op

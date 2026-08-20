@@ -1,0 +1,30 @@
+save_key.sh
+  s_b6590482fc13dc::t_fdc4e55dbe5a8f 2,10-11,42,68,71-81,83-85
+run.sh
+  s_b6590482fc13dc::t_4d78ab365f1b29 2-18
+web/server.py
+  s_b6590482fc13dc::t_d1257804cef105 24-25
+  s_b6590482fc13dc::t_273dc3d65b6c09 26
+run_web.sh
+  s_b6590482fc13dc::t_e13fd9def5b467 2-7,9-20
+.env.op
+  s_b6590482fc13dc::t_bacc311af0d4c3 1-7
+README.md
+  s_b6590482fc13dc::t_3317981e7999f1 41-62,65,69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "d9e3e9996104a5122e5b50326d470ed33ffbc38e",
+  "prompts": {},
+  "sessions": {
+    "s_b6590482fc13dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d4bccff0-af0d-41ee-a6d3-0a19575667ad",
+        "model": "claude-opus-5"
+      },
+      "human_author": "anh nguyen <anh.nqqq@icloud.com>"
+    }
+  }
+}

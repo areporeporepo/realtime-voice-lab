@@ -217,6 +217,14 @@ async def api_trace(request: Request):
     return JSONResponse({"ok": True})
 
 
+# Inbound phone calls share this process, so they get the same persona, the same
+# tools, and the same tunnel. See web/phone.py for why the seam is here.
+from web import phone  # noqa: E402
+
+phone.register(app, model=MODEL, voice=VOICE, instructions=INSTRUCTIONS,
+               schemas=SCHEMAS, tools=TOOLS, api_key=_api_key, trace=_trace)
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 5050)))

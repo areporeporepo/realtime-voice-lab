@@ -1,0 +1,23 @@
+web/server.py
+  s_b6590482fc13dc::t_e23017218ff531 53-65,70-91
+docs/index.html
+  s_b6590482fc13dc::t_5d8a3dfa56d5ed 199,284
+  s_b6590482fc13dc::t_bb77dac17d698c 258-262,266-275,277-278
+  s_b6590482fc13dc::t_3c07eeb2d9f8fd 234,236-237
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "c79888d91580a655fc052fd0b82dc02be99e0049",
+  "prompts": {},
+  "sessions": {
+    "s_b6590482fc13dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d4bccff0-af0d-41ee-a6d3-0a19575667ad",
+        "model": "claude-opus-5"
+      },
+      "human_author": "anh nguyen <anh.nqqq@icloud.com>"
+    }
+  }
+}

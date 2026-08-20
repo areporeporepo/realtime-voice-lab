@@ -26,7 +26,7 @@ import sys
 import urllib.error
 import urllib.request
 
-TOKEN_REF = "op://Employee/cloudflare api/password"
+TOKEN_REF = "op://Employee/cloudfare/hldsxkjvg3smyf5hlv2nofsuq4"
 ZONE = "hienhoa.com"
 HOSTNAME = "voice.hienhoa.com"
 TUNNEL_NAME = "hienhoa-voice"
@@ -41,7 +41,9 @@ def op_read(ref):
     return r.stdout.strip()
 
 
-def cf(token, method, path, body=None):
+def cf(token, method, path, body=None, fatal=True):
+    """Call the Cloudflare API. With fatal=False, return None on error instead
+    of exiting, so one missing token scope does not block the rest of setup."""
     req = urllib.request.Request(
         API + path,
         data=json.dumps(body).encode() if body is not None else None,
@@ -53,6 +55,9 @@ def cf(token, method, path, body=None):
             return json.loads(r.read())
     except urllib.error.HTTPError as e:
         detail = e.read().decode()
+        if not fatal:
+            print(f"  ! {method} {path} -> {e.code}")
+            return None
         sys.exit(f"Cloudflare API {method} {path} -> {e.code}\n{detail[:600]}")
 
 
@@ -93,13 +98,28 @@ def main():
     rec = {"type": "CNAME", "name": HOSTNAME, "content": target,
            "proxied": True, "ttl": 1}
     have = cf(token, "GET", f"/zones/{zone_id}/dns_records?name={HOSTNAME}")
-    if have.get("result"):
-        cf(token, "PATCH",
-           f"/zones/{zone_id}/dns_records/{have['result'][0]['id']}", rec)
-        print(f"  updated CNAME {HOSTNAME} -> {target}")
+    if have and have.get("result"):
+        ok = cf(token, "PATCH",
+                f"/zones/{zone_id}/dns_records/{have['result'][0]['id']}",
+                rec, fatal=False)
+        print(f"  {'updated' if ok else 'COULD NOT UPDATE'} CNAME {HOSTNAME}")
+        dns_ok = bool(ok)
     else:
-        cf(token, "POST", f"/zones/{zone_id}/dns_records", rec)
-        print(f"  created CNAME {HOSTNAME} -> {target}")
+        ok = cf(token, "POST", f"/zones/{zone_id}/dns_records", rec, fatal=False)
+        print(f"  {'created' if ok else 'COULD NOT CREATE'} CNAME {HOSTNAME}")
+        dns_ok = bool(ok)
+
+    if not dns_ok:
+        print(f"""
+  The token lacks Zone > DNS > Edit. Add this record by hand instead
+  (Cloudflare dash > {ZONE} > DNS > Add record):
+
+      Type    CNAME
+      Name    {HOSTNAME.split('.')[0]}
+      Target  {target}
+      Proxy   Proxied (orange cloud, required)
+      TTL     Auto
+""")
 
     # --- run token ----------------------------------------------------------
     run_token = cf(token, "GET",

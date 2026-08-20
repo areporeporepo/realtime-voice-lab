@@ -1,5 +1,7 @@
 # realtime-voice-lab
 
+**Live:** https://voice.hienhoa.com (access key required)
+
 Continuous, interruptible voice conversation with a database. You talk, it queries
 **32,374 real SEC Form D private-offering filings**, and it answers out loud.
 
@@ -103,6 +105,17 @@ cp .env.op.example .env.op     # holds op:// references, never secrets
 `run_web.sh` resolves the key three ways, in order: an existing `OPENAI_API_KEY`
 in the environment, then `op run --env-file=./.env.op`, then a clear error. `op run`
 injects the value into the subprocess environment only, and masks it in output.
+
+## Live deployment
+
+Served from a Cloudflare Tunnel (`hienhoa-voice`) pointed at a local
+`run_web.sh`, with DNS and ingress provisioned by `cloudflare_setup.py` over the
+Cloudflare API. No browser login and no `cert.pem` required.
+
+Note: Cloudflare's Browser Integrity Check returns **error 1010** to clients
+without a browser fingerprint. Real browsers are fine, but scripted clients and
+native apps calling `/session` or `/api/tool` will be blocked until you add a WAF
+skip rule for those paths.
 
 ## Run
 

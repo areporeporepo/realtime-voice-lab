@@ -293,6 +293,60 @@ function frame(t) {
 }
 size(); requestAnimationFrame(frame);
 
+/* ===================== backchannels =====================
+   The Realtime API will not emit these: its turn-taking exists specifically to
+   stop the model talking over you, and there is no "acknowledge" event. So we
+   play cached clips locally. Because the audio never enters the mic stream, it
+   cannot confuse the model's VAD, and it costs nothing per call.
+
+   Rules that keep it from being obnoxious: only while you are genuinely still
+   talking, never while the analyst is, a floor between utterances, and a cap
+   per turn so a long monologue does not turn into a chorus. */
+const BC = {
+  clips: {}, lang: 'en', ready: false,
+  speechSince: 0, lastAt: 0, countThisTurn: 0,
+  MIN_TALK_MS: 2800,   /* how long you must be going before the first one   */
+  GAP_MS: 4500,        /* floor between acknowledgements                    */
+  MAX_PER_TURN: 3,
+  VOLUME: 0.32,        /* a listener, not a participant                     */
+};
+
+fetch(api('/bc/manifest.json')).then(r => r.json()).then(m => {
+  for (const [lang, names] of Object.entries(m)) {
+    BC.clips[lang] = names.map(n => {
+      const a = new Audio(api('/bc/' + n));
+      a.preload = 'auto'; a.volume = BC.VOLUME;
+      return a;
+    });
+  }
+  BC.ready = true;
+}).catch(() => { /* no clips: silently skip the whole feature */ });
+
+/* Which language to acknowledge in, inferred from what you just said.
+   Cheap and reliable: CJK block, then Vietnamese-specific diacritics. */
+function bcDetect(text) {
+  if (/[一-鿿]/.test(text)) return 'zh';
+  if (/[ăâđêôơưĂÂĐÊÔƠƯ]|[ạảãáàẹẻẽéèịỉĩíìọỏõóòụủũúùỵỷỹýỳ]/i.test(text)) return 'vi';
+  return 'en';
+}
+
+function bcMaybe() {
+  if (!BC.ready || !BC.speechSince) return;
+  const now = performance.now();
+  if (now < aiUntil) return;                            /* analyst is talking */
+  if (now - BC.speechSince < BC.MIN_TALK_MS) return;
+  if (now - BC.lastAt < BC.GAP_MS) return;
+  if (BC.countThisTurn >= BC.MAX_PER_TURN) return;
+
+  const set = BC.clips[BC.lang] || BC.clips.en;
+  if (!set || !set.length) return;
+  const a = set[Math.floor(Math.random() * set.length)];
+  try { a.currentTime = 0; a.play().catch(() => {}); } catch (_) {}
+  BC.lastAt = now;
+  BC.countThisTurn++;
+}
+setInterval(bcMaybe, 400);
+
 /* ===================== chrome ===================== */
 function line(cls, who, text) {
   const el = document.createElement('div');
@@ -338,15 +392,28 @@ async function runTool(name, callId, argsJson) {
 /* ===================== events ===================== */
 function onEvent(ev) {
   switch (ev.type) {
-    case 'input_audio_buffer.speech_started': spokeAt = null; say('Listening', 'live'); break;
-    case 'input_audio_buffer.speech_stopped': spokeAt = performance.now(); say('Thinking', 'live'); break;
+    case 'input_audio_buffer.speech_started':
+      spokeAt = null;
+      BC.speechSince = performance.now();
+      say('Listening', 'live');
+      break;
+    case 'input_audio_buffer.speech_stopped':
+      spokeAt = performance.now();
+      BC.speechSince = 0;
+      BC.countThisTurn = 0;
+      say('Thinking', 'live');
+      break;
 
     case 'conversation.item.input_audio_transcription.completed':
-      if (ev.transcript) line('', 'you', ev.transcript.trim());
+      if (ev.transcript) {
+        line('', 'you', ev.transcript.trim());
+        BC.lang = bcDetect(ev.transcript);   /* acknowledge in their language */
+      }
       break;
 
     case 'response.output_audio_transcript.delta':
       aiUntil = performance.now() + 900;
+      BC.speechSince = 0;
       say('Speaking', 'live');
       if (spokeAt !== null) { lags.push(performance.now() - spokeAt); spokeAt = null; stats(); }
       break;

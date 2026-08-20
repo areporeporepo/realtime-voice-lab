@@ -17,6 +17,7 @@ import urllib.request
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.insert(0, ROOT)
@@ -137,6 +138,12 @@ def _trace(kind, payload):
 @app.get("/")
 def index():
     return FileResponse(os.path.join(ROOT, "docs", "index.html"))
+
+
+# Cached backchannel clips ("mm-hm", "vâng", "嗯"). Static, no key required:
+# they are three-word audio files, and gating them would only break playback.
+app.mount("/bc", StaticFiles(directory=os.path.join(ROOT, "docs", "bc")),
+          name="bc")
 
 
 @app.post("/session")

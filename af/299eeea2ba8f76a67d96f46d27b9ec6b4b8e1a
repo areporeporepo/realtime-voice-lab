@@ -1,0 +1,24 @@
+web/phone.py
+  s_b6590482fc13dc::t_026b3234885305 112-116,119-133,137-138,142-146
+  s_b6590482fc13dc::t_4a960b7552e2cb 17-18,21-22,28-77
+  s_b6590482fc13dc::t_12f53c2aff6b3b 78
+  s_b6590482fc13dc::t_d9f5fbb84613f5 117-118
+deploy_cloudrun.sh
+  s_b6590482fc13dc::t_b436d9ea633b7a 1-90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "af299eeea2ba8f76a67d96f46d27b9ec6b4b8e1a",
+  "prompts": {},
+  "sessions": {
+    "s_b6590482fc13dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d4bccff0-af0d-41ee-a6d3-0a19575667ad",
+        "model": "claude-opus-5"
+      },
+      "human_author": "anh nguyen <anh.nqqq@icloud.com>"
+    }
+  }
+}

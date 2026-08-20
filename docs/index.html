@@ -98,8 +98,7 @@
   .bar.bad  { color: #d0574a; font-size: 12px; }
   .bar input {
     flex: 1; min-width: 0; border: 0; outline: 0; background: transparent;
-    font-family: var(--sans); font-size: 15px; color: var(--ink);
-    letter-spacing: .18em;
+    font-family: var(--sans); font-size: 16px; color: var(--ink);
   }
   .bar input::placeholder { color: var(--muted); letter-spacing: 0; }
 
@@ -395,7 +394,7 @@ function askForKey() {
   bar.innerHTML = '';
   const input = document.createElement('input');
   input.type = 'password';
-  input.placeholder = 'Access passphrase';
+  input.placeholder = 'Passphrase';
   input.autocomplete = 'current-password';
   input.spellcheck = false;
   bar.appendChild(input);
@@ -504,12 +503,9 @@ $('btnMeter').onclick = e => {
   e.currentTarget.classList.toggle('on', $('meter').classList.contains('show'));
 };
 
-/* Tell a first-time visitor what is being asked of them, rather than showing a
-   sample question they cannot use yet. */
-if (!haveKey()) {
-  bar.textContent = 'Passphrase required to begin';
-  $('go').textContent = 'Enter passphrase';
-}
+/* A first-time visitor lands straight on the passphrase field, already focused.
+   Open, type, Enter. No button to discover first. */
+if (!haveKey()) askForKey();
 </script>
 </body>
 </html>

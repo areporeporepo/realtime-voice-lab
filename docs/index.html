@@ -3,210 +3,154 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#07080c">
+<meta name="theme-color" content="#fbfbfd">
 <title>Form D Analyst</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink:      #07080c;
-    --ink-2:    #0d0f15;
-    --ivory:    #ece7dd;
-    --ivory-d:  #8f8a80;
-    --rule:     #1c1f27;
-    --human:    #f0a848;   /* amber: you have the floor  */
-    --machine:  #7fe3c4;   /* mint:  the model is speaking */
-    --alarm:    #e8705f;
-    --serif: 'Instrument Serif', Georgia, serif;
-    --mono:  'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    --paper:   #fbfbfd;
+    --ink:     #14161d;
+    --muted:   #8b90a0;
+    --hairline:#e8e9ef;
+    --chip:    #ffffff;
+    --sans: 'Instrument Sans', -apple-system, system-ui, sans-serif;
+    --serif:'Instrument Serif', Georgia, serif;
+    --mono: ui-monospace, SFMono-Regular, monospace;
   }
-
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; margin: 0; }
-
   body {
-    background: var(--ink);
-    color: var(--ivory);
-    font-family: var(--mono);
-    font-size: 13px;
-    overflow: hidden;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    padding: max(20px, env(safe-area-inset-top)) 22px max(22px, env(safe-area-inset-bottom));
+    background: var(--paper); color: var(--ink);
+    font-family: var(--sans); font-size: 14px; overflow: hidden;
+    display: grid; grid-template-rows: auto 1fr auto;
+    padding: max(14px, env(safe-area-inset-top)) 18px max(20px, env(safe-area-inset-bottom));
   }
 
-  /* atmosphere: a slow radial bloom plus fine grain, so the field is never flat */
+  /* a whisper of colour bleeding up from the sphere, so white is not flat */
   body::before {
-    content: ''; position: fixed; inset: -30%;
-    background: radial-gradient(ellipse at 50% 45%,
-      rgba(127,227,196,.10), rgba(240,168,72,.05) 38%, transparent 68%);
-    filter: blur(40px); pointer-events: none;
-    animation: drift 24s ease-in-out infinite alternate;
-  }
-  body::after {
-    content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .035;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-  @keyframes drift {
-    from { transform: translate3d(-3%, -2%, 0) scale(1); }
-    to   { transform: translate3d(3%, 2%, 0) scale(1.12); }
+    content: ''; position: fixed; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 60% 45% at 50% 52%,
+                rgba(150,164,246,.10), transparent 70%);
   }
 
-  /* ---------- masthead ---------- */
-  header {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    gap: 20px; z-index: 2; position: relative;
-    animation: rise .8s cubic-bezier(.2,.7,.2,1) both;
-  }
-  .mark {
-    font-family: var(--serif); font-size: 27px; line-height: .95;
-    letter-spacing: -.015em;
-  }
-  .mark i { font-style: italic; color: var(--machine); }
-  .corpus {
-    color: var(--ivory-d); font-size: 10.5px; letter-spacing: .1em;
-    text-transform: uppercase; margin-top: 7px;
-  }
+  /* ---------- top rail ---------- */
+  header { display: flex; align-items: center; justify-content: space-between; z-index: 3; }
 
-  /* readouts: serif numerals, editorial rather than dashboard */
-  .readouts { display: flex; gap: 26px; text-align: right; }
-  .readout span {
-    display: block; color: var(--ivory-d); font-size: 9px;
-    letter-spacing: .14em; text-transform: uppercase; margin-bottom: 3px;
+  .pip {
+    width: 40px; height: 40px; border-radius: 999px; padding: 0;
+    background: var(--chip); border: 1px solid var(--hairline);
+    color: var(--ink); cursor: pointer; display: grid; place-items: center;
+    box-shadow: 0 1px 2px rgba(20,22,29,.04);
+    transition: transform .2s cubic-bezier(.2,.7,.2,1), box-shadow .2s, opacity .2s;
   }
-  .readout b {
-    font-family: var(--serif); font-weight: 400; font-size: 25px;
-    line-height: 1; font-variant-numeric: tabular-nums;
-  }
+  .pip:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(20,22,29,.08); }
+  .pip svg { width: 17px; height: 17px; fill: none; stroke: currentColor;
+             stroke-width: 1.7; stroke-linecap: round; }
+  .pip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .title { text-align: center; line-height: 1.15; }
+  .title b { font-family: var(--serif); font-weight: 400; font-size: 19px; }
+  .title b i { font-style: italic; color: #7d8bef; }
+  .title span { display: block; color: var(--muted); font-size: 10px;
+                letter-spacing: .09em; text-transform: uppercase; margin-top: 1px; }
 
   /* ---------- stage ---------- */
-  main {
-    position: relative; display: grid; place-items: center;
-    min-height: 0; z-index: 1;
-  }
+  main { position: relative; display: grid; place-items: center; min-height: 0; }
   canvas { display: block; width: 100%; height: 100%; }
 
-  /* state word sits inside the orb */
-  .state {
-    position: absolute; font-size: 10px; letter-spacing: .26em;
-    text-transform: uppercase; color: var(--ivory-d);
-    pointer-events: none; text-align: center; line-height: 1.9;
-    transition: color .4s;
+  .meter {
+    position: absolute; bottom: 6%; font-family: var(--mono); font-size: 11px;
+    color: var(--muted); letter-spacing: .02em;
+    opacity: 0; transition: opacity .5s;
   }
-  .state.live  { color: var(--machine); }
-  .state.error { color: var(--alarm); letter-spacing: .1em; text-transform: none;
-                 font-size: 11px; max-width: 30ch; }
+  .meter.show { opacity: 1; }
 
-  /* ---------- transcript ---------- */
   .feed {
-    position: absolute; left: 0; right: 0; bottom: 0; max-height: 38%;
-    overflow-y: auto; overscroll-behavior: contain;
-    font-size: 12px; line-height: 1.75;
-    mask-image: linear-gradient(transparent, #000 22%);
-    -webkit-mask-image: linear-gradient(transparent, #000 22%);
-    scrollbar-width: none;
+    position: absolute; inset: auto 0 0; max-height: 46%; overflow-y: auto;
+    padding: 0 4px; font-size: 13.5px; line-height: 1.65;
+    mask-image: linear-gradient(transparent, #000 20%);
+    -webkit-mask-image: linear-gradient(transparent, #000 20%);
+    scrollbar-width: none; display: none;
   }
+  .feed.show { display: block; }
   .feed::-webkit-scrollbar { display: none; }
-  .feed > div { animation: rise .5s cubic-bezier(.2,.7,.2,1) both; }
-  .feed .who {
-    color: var(--ivory-d); font-size: 9.5px; letter-spacing: .16em;
-    text-transform: uppercase; margin-right: 9px;
-  }
-  .you  { color: var(--ivory); }
-  .you .who  { color: var(--human); }
-  .ai   { color: var(--machine); }
-  .ai .who   { color: var(--machine); opacity: .55; }
-  .call { color: var(--ivory-d); font-size: 11px; }
-  .err  { color: var(--alarm); }
+  .feed > div { animation: rise .45s cubic-bezier(.2,.7,.2,1) both; margin-bottom: 7px; }
+  .feed .who { color: var(--muted); font-size: 9.5px; letter-spacing: .14em;
+               text-transform: uppercase; margin-right: 8px; }
+  .ai   { color: #4b5bd6; }
+  .call { color: var(--muted); font-family: var(--mono); font-size: 11px; }
+  .err  { color: #d0574a; }
 
-  /* ---------- controls ---------- */
-  footer {
-    display: flex; align-items: center; justify-content: center; gap: 12px;
-    z-index: 2; position: relative; padding-top: 18px;
-    animation: rise .8s .12s cubic-bezier(.2,.7,.2,1) both;
-  }
+  /* ---------- bottom rail ---------- */
+  footer { display: flex; align-items: center; gap: 10px; z-index: 3; }
 
-  .talk {
-    font-family: var(--mono); font-size: 11.5px; letter-spacing: .2em;
-    text-transform: uppercase; color: var(--ink);
-    background: var(--ivory); border: 0; border-radius: 999px;
-    padding: 17px 40px; cursor: pointer;
-    transition: transform .25s cubic-bezier(.2,.7,.2,1), background .25s, opacity .2s;
+  .bar {
+    flex: 1; min-width: 0; height: 52px; border-radius: 999px;
+    background: var(--chip); border: 1px solid var(--hairline);
+    display: flex; align-items: center; padding: 0 20px;
+    color: var(--muted); box-shadow: 0 1px 2px rgba(20,22,29,.04);
+    overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
   }
-  .talk:hover:not(:disabled) { transform: translateY(-2px); }
-  .talk:disabled { opacity: .35; cursor: default; }
+  .bar em { font-family: var(--serif); font-style: italic; color: var(--ink); }
+  .bar.live { color: #4b5bd6; }
+  .bar.bad  { color: #d0574a; font-size: 12px; }
 
-  .icon {
-    width: 54px; height: 54px; border-radius: 999px; cursor: pointer;
-    background: transparent; border: 1px solid var(--rule); color: var(--ivory);
-    display: grid; place-items: center; padding: 0;
-    transition: border-color .2s, color .2s, background .2s, transform .25s;
+  .round {
+    width: 52px; height: 52px; flex: none; border-radius: 999px; padding: 0;
+    cursor: pointer; display: grid; place-items: center;
+    background: var(--chip); border: 1px solid var(--hairline); color: var(--ink);
+    box-shadow: 0 1px 2px rgba(20,22,29,.04);
+    transition: transform .2s cubic-bezier(.2,.7,.2,1), box-shadow .2s, background .2s;
   }
-  .icon:hover { transform: translateY(-2px); border-color: var(--ivory-d); }
-  .icon svg { width: 19px; height: 19px; fill: none;
-              stroke: currentColor; stroke-width: 1.6;
-              stroke-linecap: round; stroke-linejoin: round; }
-  .icon.muted { color: var(--human); border-color: var(--human); }
-  .icon.hangup { color: var(--alarm); border-color: rgba(232,112,95,.35); }
-  .icon.hangup:hover { background: rgba(232,112,95,.1); border-color: var(--alarm); }
+  .round:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(20,22,29,.09); }
+  .round svg { width: 20px; height: 20px; fill: none; stroke: currentColor;
+               stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .round.muted { background: #fff3e2; border-color: #f0d3a8; color: #a86a12; }
+  .round.dark  { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .round.go    { background: var(--ink); color: #fff; border-color: var(--ink);
+                 width: auto; padding: 0 26px; font-family: var(--sans);
+                 font-size: 14px; font-weight: 500; }
   [hidden] { display: none !important; }
 
-  .hint {
-    position: absolute; bottom: calc(100% + 16px); left: 50%;
-    transform: translateX(-50%); white-space: nowrap;
-    color: var(--ivory-d); font-size: 11px; opacity: .75;
+  @keyframes rise { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 560px) {
+    .title b { font-size: 16px; } .title span { display: none; }
+    .bar { padding: 0 15px; font-size: 13px; }
   }
-  .hint em { font-family: var(--serif); font-style: italic;
-             font-size: 14px; color: var(--ivory); }
-
-  @keyframes rise {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: none; }
-  }
-
-  @media (max-width: 620px) {
-    .mark { font-size: 22px; }
-    .readouts { gap: 16px; }
-    .readout b { font-size: 19px; }
-    .corpus { font-size: 9px; }
-    .talk { padding: 16px 30px; }
-    .hint { display: none; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    body::before { animation: none; }
-    *, *::before, *::after { animation-duration: .01ms !important; }
-  }
+  @media (prefers-reduced-motion: reduce) { *, *::before { animation-duration: .01ms !important; } }
 </style>
 </head>
 <body>
 
 <header>
-  <div>
-    <div class="mark">Form D <i>Analyst</i></div>
-    <div class="corpus">32,374 filings &middot; Jan&ndash;Jun 2026 &middot; <span id="model">idle</span></div>
+  <button class="pip" id="btnFeed" aria-label="Toggle transcript">
+    <svg viewBox="0 0 24 24"><path d="M4 8h16M4 14h11"/></svg>
+  </button>
+  <div class="title">
+    <b>Form D <i>Analyst</i></b>
+    <span>32,374 filings &middot; <span id="model">idle</span></span>
   </div>
-  <div class="readouts">
-    <div class="readout"><span>Lag</span><b id="m-lag">&mdash;</b></div>
-    <div class="readout"><span>Tokens</span><b id="m-tok">0</b></div>
-    <div class="readout"><span>Spend</span><b id="m-cost">0.00</b></div>
-  </div>
+  <button class="pip" id="btnMeter" aria-label="Toggle readout">
+    <svg viewBox="0 0 24 24"><path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.1"/><circle cx="15" cy="16" r="2.1"/></svg>
+  </button>
 </header>
 
 <main>
   <canvas id="orb"></canvas>
-  <div class="state" id="state">tap to begin</div>
+  <div class="meter" id="meter">&mdash;</div>
   <div class="feed" id="feed"></div>
 </main>
 
 <footer>
-  <p class="hint">Ask <em>&ldquo;the biggest technology raises in California this year&rdquo;</em></p>
-  <button class="talk" id="go">Start</button>
-  <button class="icon" id="mute" hidden aria-label="Mute microphone">
-    <svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
+  <div class="bar" id="bar">Ask <em>&ldquo;the biggest technology raises in California&rdquo;</em></div>
+  <button class="round go" id="go">Start</button>
+  <button class="round" id="mute" hidden aria-label="Mute microphone">
+    <svg viewBox="0 0 24 24"><path d="M12 3.2a2.9 2.9 0 0 1 2.9 2.9v5.8a2.9 2.9 0 0 1-5.8 0V6.1A2.9 2.9 0 0 1 12 3.2z"/><path d="M5.4 11a6.6 6.6 0 0 0 13.2 0"/><path d="M12 17.6v3.2"/></svg>
   </button>
-  <button class="icon hangup" id="end" hidden aria-label="End conversation">
-    <svg viewBox="0 0 24 24"><path d="M3 9a13 13 0 0 1 18 0l-2.6 2.6a2 2 0 0 1-2.6.2l-1.3-1a1.6 1.6 0 0 0-1-.3h-1a1.6 1.6 0 0 0-1 .3l-1.3 1a2 2 0 0 1-2.6-.2z"/></svg>
+  <button class="round dark" id="end" hidden aria-label="End conversation">
+    <svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>
   </button>
 </footer>
 
@@ -214,7 +158,7 @@
 
 <script>
 const $ = id => document.getElementById(id);
-const feed = $('feed');
+const feed = $('feed'), bar = $('bar');
 
 /* gpt-realtime-2.1 published audio rates, per 1M tokens */
 const RATE_IN = 32.0, RATE_OUT = 64.0;
@@ -227,17 +171,26 @@ const api = p => API + p;
 
 let pc, dc, mic, actx, anaMic, anaAi, model = '';
 let audioIn = 0, audioOut = 0, spokeAt = null, lags = [];
-let aiUntil = 0;   /* event-driven fallback if the remote analyser reads silent */
+let aiUntil = 0;   /* fallback if the remote analyser reports silence */
 
-/* ========================= orb =========================
-   Two analysers drive one blob. Amber when you hold the floor, mint when the
-   model does. Radius is displaced per-bin by real FFT magnitude, so the shape
-   is the audio rather than a decorative loop. */
+/* ===================== the sphere =====================
+   A soft body of light rather than a waveform. Base is a radial gradient; the
+   wisps are drifting radial-gradient blobs clipped to the circle, which gives
+   cloud texture without depending on canvas filter support (Safari). Level
+   drives radius, wisp speed, and hue: cooler blue while the analyst speaks,
+   warmer lilac while you do. */
 const cv = $('orb'), g = cv.getContext('2d');
-const BINS = 88;
-let shape = new Float32Array(BINS);   /* smoothed displacement */
-let tone = 0;                          /* 0 = human, 1 = machine */
-let dpr = 1;
+let dpr = 1, tone = 0, lvl = 0;
+
+/* fixed wisp field: position, size and drift are seeded once so the motion
+   reads as one continuous body instead of random flicker */
+const WISPS = Array.from({ length: 9 }, (_, i) => ({
+  a: (i / 9) * Math.PI * 2,
+  r: 0.18 + (i % 4) * 0.13,
+  s: 0.42 + (i % 3) * 0.2,
+  sp: (i % 2 ? 1 : -1) * (0.00006 + (i % 5) * 0.00002),
+  w: i % 3 === 0 ? 1 : 0.62,
+}));
 
 function size() {
   dpr = Math.min(devicePixelRatio || 1, 2);
@@ -247,15 +200,13 @@ function size() {
 }
 addEventListener('resize', size);
 
+const bufM = new Uint8Array(1024), bufA = new Uint8Array(1024);
 function energy(ana, buf) {
   if (!ana) return 0;
   ana.getByteFrequencyData(buf);
-  let s = 0;
-  for (let i = 0; i < 48; i++) s += buf[i];
-  return s / (48 * 255);
+  let s = 0; for (let i = 0; i < 44; i++) s += buf[i];
+  return s / (44 * 255);
 }
-
-const bufM = new Uint8Array(1024), bufA = new Uint8Array(1024);
 
 function frame(t) {
   requestAnimationFrame(frame);
@@ -264,76 +215,71 @@ function frame(t) {
 
   const eM = energy(anaMic, bufM);
   let   eA = energy(anaAi, bufA);
-  /* Some browsers hand back a silent analyser for remote WebRTC tracks. If the
-     model is mid-utterance per the data channel, synthesise motion instead. */
-  if (eA < 0.01 && performance.now() < aiUntil) eA = 0.16 + Math.sin(t / 90) * 0.07;
+  if (eA < 0.01 && performance.now() < aiUntil) eA = 0.15 + Math.sin(t / 95) * 0.06;
 
-  const speaking = Math.max(eM, eA);
-  tone += ((eA > eM ? 1 : 0) - tone) * 0.06;
+  lvl  += (Math.max(eM, eA) - lvl) * 0.12;
+  tone += ((eA > eM ? 1 : 0) - tone) * 0.045;
 
   g.clearRect(0, 0, w, h);
   const cx = w / 2, cy = h / 2;
-  const base = Math.min(w, h) * (0.19 + speaking * 0.05);
-  const breathe = 1 + Math.sin(t / 1400) * 0.022;
+  const R = Math.min(w, h) * 0.245 * (1 + Math.sin(t / 2600) * 0.012 + lvl * 0.1);
 
-  /* per-bin displacement from the louder source */
-  const src = eA > eM ? bufA : bufM;
-  for (let i = 0; i < BINS; i++) {
-    const v = (src[(i * 3) % 256] || 0) / 255;
-    shape[i] += (v * speaking * 1.5 - shape[i]) * 0.14;
-  }
+  /* hue: lilac (you) -> periwinkle (analyst) */
+  const mixC = (a, b) => a.map((v, i) => Math.round(v + (b[i] - v) * tone));
+  const deep = mixC([171, 152, 238], [136, 152, 244]);
+  const pale = mixC([230, 226, 252], [223, 231, 254]);
+  const rgb = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
 
-  const hum = [240, 168, 72], mac = [127, 227, 196];
-  const col = a => `rgba(${
-    Math.round(hum[0] + (mac[0] - hum[0]) * tone)},${
-    Math.round(hum[1] + (mac[1] - hum[1]) * tone)},${
-    Math.round(hum[2] + (mac[2] - hum[2]) * tone)},${a})`;
+  /* ambient halo */
+  const halo = g.createRadialGradient(cx, cy, R * 0.7, cx, cy, R * 2.15);
+  halo.addColorStop(0, rgb(deep, 0.16 + lvl * 0.1));
+  halo.addColorStop(1, rgb(deep, 0));
+  g.fillStyle = halo;
+  g.fillRect(0, 0, w, h);
 
-  /* three concentric passes: bloom, body, core */
-  const passes = [
-    { m: 1.55, a: 0.07, lw: 0, fill: true,  blur: 60 },
-    { m: 1.00, a: 0.85, lw: 1.4 * dpr, fill: false, blur: 26 },
-    { m: 0.55, a: 0.16, lw: 0, fill: true,  blur: 0  },
-  ];
-
-  for (const p of passes) {
-    g.beginPath();
-    for (let i = 0; i <= BINS; i++) {
-      const k = i % BINS;
-      const ang = (k / BINS) * Math.PI * 2 + t / 7000;
-      const wob = Math.sin(ang * 3 + t / 900) * 0.03 + Math.sin(ang * 5 - t / 1300) * 0.02;
-      const r = base * p.m * breathe * (1 + shape[k] * 0.42 + wob);
-      const x = cx + Math.cos(ang) * r, y = cy + Math.sin(ang) * r;
-      i ? g.lineTo(x, y) : g.moveTo(x, y);
-    }
-    g.closePath();
-    g.shadowBlur = p.blur * dpr;
-    g.shadowColor = col(0.5);
-    if (p.fill) { g.fillStyle = col(p.a); g.fill(); }
-    else { g.strokeStyle = col(p.a); g.lineWidth = p.lw; g.stroke(); }
-    g.shadowBlur = 0;
-  }
-
-  /* tick ring: a quiet instrument detail, brightens with level */
+  /* body */
   g.save();
-  g.translate(cx, cy);
-  g.rotate(t / 14000);
-  for (let i = 0; i < 72; i++) {
-    const on = (i / 72) < speaking * 1.6;
-    g.beginPath();
-    g.rotate((Math.PI * 2) / 72);
-    const rr = base * 1.92;
-    g.moveTo(rr, 0);
-    g.lineTo(rr + (on ? 7 : 3) * dpr, 0);
-    g.strokeStyle = col(on ? 0.5 : 0.12);
-    g.lineWidth = 1 * dpr;
-    g.stroke();
+  g.beginPath(); g.arc(cx, cy, R, 0, Math.PI * 2); g.clip();
+
+  const base = g.createLinearGradient(cx + R * 0.5, cy - R, cx - R * 0.6, cy + R);
+  base.addColorStop(0, rgb(deep, 1));
+  base.addColorStop(0.55, rgb(mixC([203, 205, 250], [201, 210, 251]), 1));
+  base.addColorStop(1, rgb(pale, 1));
+  g.fillStyle = base;
+  g.fillRect(cx - R, cy - R, R * 2, R * 2);
+
+  /* cloud wisps */
+  for (const p of WISPS) {
+    const ang = p.a + t * p.sp * (1 + lvl * 5);
+    const d = R * p.r;
+    const x = cx + Math.cos(ang) * d;
+    const y = cy + Math.sin(ang * 1.3) * d * 0.75;
+    const rad = R * p.s * (1 + Math.sin(t / 3000 + p.a) * 0.14);
+    const gr = g.createRadialGradient(x, y, 0, x, y, rad);
+    gr.addColorStop(0, `rgba(255,255,255,${0.3 * p.w})`);
+    gr.addColorStop(0.5, `rgba(255,255,255,${0.11 * p.w})`);
+    gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr;
+    g.fillRect(cx - R, cy - R, R * 2, R * 2);
   }
+
+  /* inner shading so it reads spherical, not as a flat disc */
+  const sh = g.createRadialGradient(cx - R * 0.3, cy - R * 0.35, R * 0.1,
+                                    cx, cy, R * 1.15);
+  sh.addColorStop(0, 'rgba(255,255,255,.34)');
+  sh.addColorStop(0.62, 'rgba(255,255,255,0)');
+  sh.addColorStop(1, rgb(deep, 0.3));
+  g.fillStyle = sh;
+  g.fillRect(cx - R, cy - R, R * 2, R * 2);
   g.restore();
+
+  /* the faintest rim, to seat it against the paper */
+  g.beginPath(); g.arc(cx, cy, R, 0, Math.PI * 2);
+  g.strokeStyle = rgb(deep, 0.14); g.lineWidth = 1 * dpr; g.stroke();
 }
 size(); requestAnimationFrame(frame);
 
-/* ========================= chrome ========================= */
+/* ===================== chrome ===================== */
 function line(cls, who, text) {
   const el = document.createElement('div');
   el.className = cls;
@@ -343,16 +289,18 @@ function line(cls, who, text) {
   feed.scrollTop = feed.scrollHeight;
   while (feed.children.length > 60) feed.removeChild(feed.firstChild);
 }
-const state = (t, cls = '') => { $('state').textContent = t; $('state').className = 'state ' + cls; };
+const say = (t, cls = '') => { bar.innerHTML = ''; bar.textContent = t; bar.className = 'bar ' + cls; };
 
 function stats() {
-  $('m-tok').textContent = (audioIn + audioOut).toLocaleString();
-  $('m-cost').textContent = ((audioIn / 1e6) * RATE_IN + (audioOut / 1e6) * RATE_OUT).toFixed(3);
-  if (lags.length) $('m-lag').textContent = Math.round(lags.reduce((a, b) => a + b, 0) / lags.length) + 'ms';
+  const cost = (audioIn / 1e6) * RATE_IN + (audioOut / 1e6) * RATE_OUT;
+  const lag = lags.length
+    ? Math.round(lags.reduce((a, b) => a + b, 0) / lags.length) + 'ms' : '--';
+  $('meter').textContent =
+    `${lag}  ·  ${(audioIn + audioOut).toLocaleString()} tok  ·  $${cost.toFixed(3)}`;
 }
 const send = o => { if (dc && dc.readyState === 'open') dc.send(JSON.stringify(o)); };
 
-/* ========================= tools ========================= */
+/* ===================== tools ===================== */
 async function runTool(name, callId, argsJson) {
   line('call', 'query', `${name} ${argsJson}`);
   let out;
@@ -373,19 +321,19 @@ async function runTool(name, callId, argsJson) {
   send({ type: 'response.create' });
 }
 
-/* ========================= events ========================= */
+/* ===================== events ===================== */
 function onEvent(ev) {
   switch (ev.type) {
-    case 'input_audio_buffer.speech_started': spokeAt = null; state('listening', 'live'); break;
-    case 'input_audio_buffer.speech_stopped': spokeAt = performance.now(); state('thinking', 'live'); break;
+    case 'input_audio_buffer.speech_started': spokeAt = null; say('Listening', 'live'); break;
+    case 'input_audio_buffer.speech_stopped': spokeAt = performance.now(); say('Thinking', 'live'); break;
 
     case 'conversation.item.input_audio_transcription.completed':
-      if (ev.transcript) line('you', 'you', ev.transcript.trim());
+      if (ev.transcript) line('', 'you', ev.transcript.trim());
       break;
 
     case 'response.output_audio_transcript.delta':
       aiUntil = performance.now() + 900;
-      state('speaking', 'live');
+      say('Speaking', 'live');
       if (spokeAt !== null) { lags.push(performance.now() - spokeAt); spokeAt = null; stats(); }
       break;
 
@@ -397,7 +345,7 @@ function onEvent(ev) {
       runTool(ev.name, ev.call_id, ev.arguments); break;
 
     case 'response.done': {
-      state('listening', 'live');
+      say('Listening', 'live');
       const u = ev.response && ev.response.usage;
       if (u) {
         audioIn  += (u.input_token_details  || {}).audio_tokens || 0;
@@ -412,62 +360,59 @@ function onEvent(ev) {
 
     case 'error':
       line('err', 'error', JSON.stringify(ev.error));
-      state('error, see log below', 'error');
+      say('Error, open the transcript', 'bad');
       break;
   }
 }
 
-/* ========================= lifecycle ========================= */
+/* ===================== lifecycle ===================== */
 async function start() {
   $('go').disabled = true;
   try {
-    state('authorising');
+    say('Authorising');
     const s = await fetch(api('/session?k=' + encodeURIComponent(Q.get('k') || '')), { method: 'POST' });
-    if (!s.ok) throw new Error((await s.text()).slice(0, 240));
+    if (!s.ok) throw new Error((await s.text()).slice(0, 220));
     const j = await s.json();
     if (!j.token) throw new Error('no token in /session response');
     model = j.model; $('model').textContent = model;
 
-    state('microphone');
+    say('Allow the microphone');
     mic = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: true, noiseSuppression: true }
-    });
+      audio: { echoCancellation: true, noiseSuppression: true } });
 
     actx = new (window.AudioContext || window.webkitAudioContext)();
-    anaMic = actx.createAnalyser(); anaMic.fftSize = 2048; anaMic.smoothingTimeConstant = .72;
+    anaMic = actx.createAnalyser(); anaMic.fftSize = 2048; anaMic.smoothingTimeConstant = .75;
     actx.createMediaStreamSource(mic).connect(anaMic);
 
-    state('connecting');
+    say('Connecting');
     pc = new RTCPeerConnection();
     pc.ontrack = e => {
       $('sink').srcObject = e.streams[0];
       try {
-        anaAi = actx.createAnalyser(); anaAi.fftSize = 2048; anaAi.smoothingTimeConstant = .72;
-        /* analyser only, never to destination: the <audio> element does playback */
+        anaAi = actx.createAnalyser(); anaAi.fftSize = 2048; anaAi.smoothingTimeConstant = .75;
+        /* analyser only, never to destination: the <audio> element plays it */
         actx.createMediaStreamSource(e.streams[0]).connect(anaAi);
-      } catch (_) { /* fall back to the event-driven animation */ }
+      } catch (_) { /* event-driven fallback covers this */ }
     };
     pc.addTrack(mic.getAudioTracks()[0], mic);
 
     dc = pc.createDataChannel('oai-events');
     dc.onmessage = e => { try { onEvent(JSON.parse(e.data)); } catch (_) {} };
-    dc.onopen = () => { state('listening', 'live'); line('call', 'session', model + ' open'); };
+    dc.onopen = () => { say('Listening', 'live'); line('call', 'session', model + ' open'); };
 
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     const r = await fetch('https://api.openai.com/v1/realtime/calls?model=' + encodeURIComponent(model), {
       method: 'POST', body: offer.sdp,
-      headers: { Authorization: 'Bearer ' + j.token, 'Content-Type': 'application/sdp' }
-    });
-    if (!r.ok) throw new Error('SDP exchange failed: ' + (await r.text()).slice(0, 240));
+      headers: { Authorization: 'Bearer ' + j.token, 'Content-Type': 'application/sdp' } });
+    if (!r.ok) throw new Error('SDP exchange failed: ' + (await r.text()).slice(0, 220));
     await pc.setRemoteDescription({ type: 'answer', sdp: await r.text() });
 
-    $('go').hidden = true;
-    $('mute').hidden = false;
-    $('end').hidden = false;
+    $('go').hidden = true; $('mute').hidden = false; $('end').hidden = false;
+    $('meter').classList.add('show'); stats();
   } catch (e) {
     line('err', 'error', String(e));
-    state(String(e).slice(0, 150), 'error');
+    say(String(e).slice(0, 120), 'bad');
     $('go').disabled = false;
   }
 }
@@ -477,11 +422,10 @@ function stop() {
   if (mic) mic.getTracks().forEach(t => t.stop());
   if (actx) actx.close();
   pc = dc = mic = actx = anaMic = anaAi = null;
-  shape = new Float32Array(BINS);
   $('go').hidden = false; $('go').disabled = false; $('go').textContent = 'Resume';
   $('mute').hidden = true; $('end').hidden = true;
   $('mute').classList.remove('muted');
-  state('ended');
+  say('Ended');
 }
 
 $('go').onclick = start;
@@ -491,7 +435,15 @@ $('mute').onclick = () => {
   const tr = mic.getAudioTracks()[0];
   tr.enabled = !tr.enabled;
   $('mute').classList.toggle('muted', !tr.enabled);
-  state(tr.enabled ? 'listening' : 'muted', tr.enabled ? 'live' : '');
+  say(tr.enabled ? 'Listening' : 'Muted', tr.enabled ? 'live' : '');
+};
+$('btnFeed').onclick = e => {
+  feed.classList.toggle('show');
+  e.currentTarget.classList.toggle('on', feed.classList.contains('show'));
+};
+$('btnMeter').onclick = e => {
+  $('meter').classList.toggle('show');
+  e.currentTarget.classList.toggle('on', $('meter').classList.contains('show'));
 };
 </script>
 </body>

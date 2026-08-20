@@ -1,0 +1,21 @@
+run_web.sh
+  s_b6590482fc13dc::t_d138d725a82b70 4-9,13-20,23-27,30-43
+save_key.sh
+  s_b6590482fc13dc::t_35fa60b2a8c82c 2,5-6,8-11,14,17-18,21-31,36-71,73-79,82,84-94,96,98,102-104,107,109-110,113,115,117-119,122,124-136,139,142-143,149-158
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "59fb36d491b0315c7ba0d7d4b1370174ab9c1a90",
+  "prompts": {},
+  "sessions": {
+    "s_b6590482fc13dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d4bccff0-af0d-41ee-a6d3-0a19575667ad",
+        "model": "claude-opus-5"
+      },
+      "human_author": "anh nguyen <anh.nqqq@icloud.com>"
+    }
+  }
+}

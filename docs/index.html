@@ -83,6 +83,13 @@ const log = $('log');
 // gpt-realtime-2.1 published audio rates, per 1M tokens.
 const RATE_IN = 32.0, RATE_OUT = 64.0;
 
+// Where the backend lives. Empty means same-origin, which is the case when the
+// Python server serves this file directly. On GitHub Pages the page is static,
+// so pass ?api=https://your-backend to point it somewhere with the key and DB.
+const Q = new URLSearchParams(location.search);
+const API = (Q.get('api') || '').replace(/\/$/, '');
+const api = path => API + path;
+
 let pc, dc, mic, model = '';
 let audioIn = 0, audioOut = 0;
 let spokeAt = null, lags = [];
@@ -118,7 +125,7 @@ async function runTool(name, callId, argsJson) {
   say('t', `-> ${name}(${argsJson})`);
   let out;
   try {
-    const r = await fetch('/api/tool', {
+    const r = await fetch(api('/api/tool'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, arguments: argsJson })
@@ -167,7 +174,7 @@ function onEvent(ev) {
         audioIn  += (u.input_token_details  || {}).audio_tokens || 0;
         audioOut += (u.output_token_details || {}).audio_tokens || 0;
         refreshStats();
-        fetch('/api/trace', {
+        fetch(api('/api/trace'), {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ usage: u, lags })
         }).catch(() => {});
@@ -188,8 +195,8 @@ async function start() {
     status('minting token...');
     // Forward the access key from our own URL (?k=...) so the server can gate
     // who is allowed to spend OpenAI credit.
-    const k = new URLSearchParams(location.search).get('k') || '';
-    const s = await fetch('/session?k=' + encodeURIComponent(k), { method: 'POST' });
+    const k = Q.get('k') || '';
+    const s = await fetch(api('/session?k=' + encodeURIComponent(k)), { method: 'POST' });
     if (!s.ok) throw new Error((await s.text()).slice(0, 300));
     const { token, model: m } = await s.json();
     if (!token) throw new Error('no token in /session response');

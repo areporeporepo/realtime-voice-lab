@@ -26,7 +26,7 @@ image = (
     .add_local_file("formd/tools.py", "/root/formd/tools.py", copy=True)
     .add_local_file("formd/__init__.py", "/root/formd/__init__.py", copy=True)
     .add_local_file("web/server.py", "/root/web/server.py", copy=True)
-    .add_local_file("web/index.html", "/root/web/index.html", copy=True)
+    .add_local_file("docs/index.html", "/root/docs/index.html", copy=True)
 )
 
 

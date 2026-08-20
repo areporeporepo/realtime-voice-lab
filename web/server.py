@@ -15,6 +15,7 @@ import time
 import urllib.request
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -67,6 +68,25 @@ INSTRUCTIONS = (
 
 app = FastAPI()
 
+# The page may be served from GitHub Pages while this backend runs elsewhere, so
+# it needs to be a permitted cross-origin caller. ALLOWED_ORIGINS is a
+# comma-separated list; the access key, not CORS, is what actually gates spend.
+_default_origins = ",".join([
+    "https://areporeporepo.github.io",
+    "http://localhost:5050",
+    "http://127.0.0.1:5050",
+])
+ALLOWED_ORIGINS = [
+    o.strip() for o in os.getenv("ALLOWED_ORIGINS", _default_origins).split(",")
+    if o.strip()
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type"],
+)
+
 
 def _api_key():
     key = os.getenv("OPENAI_API_KEY")
@@ -83,7 +103,7 @@ def _trace(kind, payload):
 
 @app.get("/")
 def index():
-    return FileResponse(os.path.join(HERE, "index.html"))
+    return FileResponse(os.path.join(ROOT, "docs", "index.html"))
 
 
 @app.post("/session")

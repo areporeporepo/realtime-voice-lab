@@ -1,0 +1,29 @@
+deploy_modal.py
+  s_b6590482fc13dc::t_a528a6738914b1 1-45
+web/index.html
+  s_b6590482fc13dc::t_074323f76331f9 189-192
+setup_modal.sh
+  s_b6590482fc13dc::t_1f26f33cbf35c5 79-82,85
+  s_b6590482fc13dc::t_6b5df187b89e57 1-60,78,86-98
+  s_b6590482fc13dc::t_55f8ca820c592b 61-77,83-84
+web/server.py
+  s_b6590482fc13dc::t_9a65cffe00e152 130
+  s_b6590482fc13dc::t_f197baeb3ae4d1 32-51
+  s_b6590482fc13dc::t_ef842c1ee4d243 90,92-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "ae4d4f6b2b97e544e7ec1774eee1fff7b3b6e6f6",
+  "prompts": {},
+  "sessions": {
+    "s_b6590482fc13dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d4bccff0-af0d-41ee-a6d3-0a19575667ad",
+        "model": "claude-opus-5"
+      },
+      "human_author": "anh nguyen <anh.nqqq@icloud.com>"
+    }
+  }
+}

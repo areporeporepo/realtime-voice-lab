@@ -1,0 +1,29 @@
+.gitignore
+  s_b6590482fc13dc::t_43401a321dc854 1-5
+run.sh
+  s_b6590482fc13dc::t_43401a321dc854 1-5
+.env.example
+  s_b6590482fc13dc::t_2f8526a0b82b15 1-3
+formd/tools.py
+  s_b6590482fc13dc::t_6036f9e0e4fbf3 1-148
+README.md
+  s_b6590482fc13dc::t_dbebb010379ff6 1-83
+twilio-base/main.py
+  s_b6590482fc13dc::t_a18e8b05a119ab 1-281
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "d151f62322e28011c24fa9fb80177160806a5fca",
+  "prompts": {},
+  "sessions": {
+    "s_b6590482fc13dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d4bccff0-af0d-41ee-a6d3-0a19575667ad",
+        "model": "claude-opus-5"
+      },
+      "human_author": "anh nguyen <anh.nqqq@icloud.com>"
+    }
+  }
+}

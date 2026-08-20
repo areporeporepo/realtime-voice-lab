@@ -9,3 +9,4 @@ trace.jsonl
 # Reference clones, not part of this project
 ocvoice/
 .env.op
+.cloudflared-token

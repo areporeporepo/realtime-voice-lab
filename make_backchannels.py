@@ -26,14 +26,20 @@ CLIPS = {
     "zh": ["嗯。", "嗯嗯。", "对。", "好。"],
 }
 
-# Softer voices sound like a listener; a bright one sounds like an interruption.
-VOICE = os.getenv("BC_VOICE", "sage")
-MODELS = ["gpt-4o-mini-tts", "tts-1"]
+# The acknowledgement must be the SAME voice as the realtime model, or it sounds
+# like a second person in the room. `marin` matches REALTIME_VOICE; the rest are
+# fallbacks in case a voice is not offered on the speech endpoint.
+VOICES = [os.getenv("BC_VOICE", "marin"), "cedar", "sage"]
+
+# Newest generation first, pinned to its latest snapshot. Verified against
+# /v1/models: gpt-4o-mini-tts is the current TTS family (there is no non-mini
+# variant); tts-1/tts-1-hd are the previous generation.
+MODELS = ["gpt-4o-mini-tts-2025-12-15", "gpt-4o-mini-tts", "tts-1-hd"]
 
 
-def speak(model, text):
+def speak(model, text, voice):
     body = json.dumps({
-        "model": model, "voice": VOICE, "input": text,
+        "model": model, "voice": voice, "input": text,
         "response_format": "mp3", "speed": 1.05,
     }).encode()
     req = urllib.request.Request(
@@ -49,17 +55,20 @@ def main():
         sys.exit("OPENAI_API_KEY not set. Run under: op run --env-file=./.env.op --")
     os.makedirs(OUT, exist_ok=True)
 
-    model = None
+    model = voice = None
     for m in MODELS:
-        try:
-            speak(m, "Mm-hm.")
-            model = m
+        for v in VOICES:
+            try:
+                speak(m, "Mm-hm.", v)
+                model, voice = m, v
+                break
+            except urllib.error.HTTPError as e:
+                print(f"  {m} / {v}: {e.code}")
+        if model:
             break
-        except urllib.error.HTTPError as e:
-            print(f"  {m}: {e.code}, trying next")
     if not model:
-        sys.exit("no working TTS model; check the model names")
-    print(f"using {model}, voice {VOICE}")
+        sys.exit("no working model/voice pair; check /v1/models")
+    print(f"using {model}, voice {voice}")
 
     manifest = {}
     for lang, phrases in CLIPS.items():
@@ -67,7 +76,7 @@ def main():
         for i, text in enumerate(phrases):
             name = f"{lang}{i}.mp3"
             with open(os.path.join(OUT, name), "wb") as f:
-                f.write(speak(model, text))
+                f.write(speak(model, text, voice))
             names.append(name)
             print(f"  {name:10} {text}")
         manifest[lang] = names

@@ -1,0 +1,26 @@
+docs/bc/manifest.json
+  s_b6590482fc13dc::t_56ab91f9db6a3e 1-20
+make_backchannels.py
+  s_b6590482fc13dc::t_afd01470c45c49 1-82
+web/server.py
+  s_b6590482fc13dc::t_60c6f5ed9c2757 143-148
+docs/index.html
+  s_b6590482fc13dc::t_8ce897a73f1b06 296-349
+  s_b6590482fc13dc::t_6cb38192993edb 395-405,408-411,416
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "7af5ba6d4d64ec84f105890d2ca6fff38e756d1b",
+  "prompts": {},
+  "sessions": {
+    "s_b6590482fc13dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d4bccff0-af0d-41ee-a6d3-0a19575667ad",
+        "model": "claude-opus-5"
+      },
+      "human_author": "anh nguyen <anh.nqqq@icloud.com>"
+    }
+  }
+}

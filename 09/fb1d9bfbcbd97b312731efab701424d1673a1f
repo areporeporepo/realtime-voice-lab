@@ -1,0 +1,27 @@
+.env.op.example
+  s_b6590482fc13dc::t_3e08eed7be2421 1-14
+LICENSE
+  s_b6590482fc13dc::t_87d2bd576842b0 1-26
+README.md
+  s_b6590482fc13dc::t_9860aa2bb063cf 3-4,6-8,10-35,38-45,48-63,66-73,75-78,80,89-92,96,98-100,102-113,116-117,119,122,125-151
+twilio-base/NOTICE.md
+  s_b6590482fc13dc::t_52101d01bc2f69 1-27
+.gitignore
+  s_b6590482fc13dc::t_1301c1082c4d0a 8-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "09fb1d9bfbcbd97b312731efab701424d1673a1f",
+  "prompts": {},
+  "sessions": {
+    "s_b6590482fc13dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d4bccff0-af0d-41ee-a6d3-0a19575667ad",
+        "model": "claude-opus-5"
+      },
+      "human_author": "anh nguyen <anh.nqqq@icloud.com>"
+    }
+  }
+}

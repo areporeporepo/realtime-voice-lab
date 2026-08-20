@@ -96,6 +96,12 @@
   .bar em { font-family: var(--serif); font-style: italic; color: var(--ink); }
   .bar.live { color: #4b5bd6; }
   .bar.bad  { color: #d0574a; font-size: 12px; }
+  .bar input {
+    flex: 1; min-width: 0; border: 0; outline: 0; background: transparent;
+    font-family: var(--sans); font-size: 15px; color: var(--ink);
+    letter-spacing: .18em;
+  }
+  .bar input::placeholder { color: var(--muted); letter-spacing: 0; }
 
   .round {
     width: 52px; height: 52px; flex: none; border-radius: 999px; padding: 0;
@@ -365,12 +371,55 @@ function onEvent(ev) {
   }
 }
 
+/* ===================== access ===================== */
+/* The passphrase can arrive three ways: in the link (?k=), remembered from a
+   previous visit, or typed. Typing is the one worth optimising for, since a
+   passphrase in a URL ends up in history and in anything the link is pasted
+   into. Remembered in localStorage so a tester enters it once per device. */
+const KEY_STORE = 'formd.k';
+function haveKey() {
+  return Q.get('k') || localStorage.getItem(KEY_STORE) || '';
+}
+
+function askForKey() {
+  bar.className = 'bar';
+  bar.innerHTML = '';
+  const input = document.createElement('input');
+  input.type = 'password';
+  input.placeholder = 'Access passphrase';
+  input.autocomplete = 'current-password';
+  input.spellcheck = false;
+  bar.appendChild(input);
+  input.focus();
+  $('go').textContent = 'Enter';
+  $('go').disabled = false;
+  $('go').onclick = submit;
+  input.onkeydown = e => { if (e.key === 'Enter') submit(); };
+
+  function submit() {
+    const v = input.value.trim();
+    if (!v) { input.focus(); return; }
+    localStorage.setItem(KEY_STORE, v);
+    $('go').textContent = 'Start';
+    $('go').onclick = start;
+    start();
+  }
+}
+
 /* ===================== lifecycle ===================== */
 async function start() {
+  const key = haveKey();
+  if (!key) return askForKey();
+
   $('go').disabled = true;
   try {
     say('Authorising');
-    const s = await fetch(api('/session?k=' + encodeURIComponent(Q.get('k') || '')), { method: 'POST' });
+    const s = await fetch(api('/session?k=' + encodeURIComponent(key)), { method: 'POST' });
+    if (s.status === 403) {
+      localStorage.removeItem(KEY_STORE);
+      say('Wrong passphrase', 'bad');
+      return askForKey();
+    }
     if (!s.ok) throw new Error((await s.text()).slice(0, 220));
     const j = await s.json();
     if (!j.token) throw new Error('no token in /session response');
@@ -445,6 +494,13 @@ $('btnMeter').onclick = e => {
   $('meter').classList.toggle('show');
   e.currentTarget.classList.toggle('on', $('meter').classList.contains('show'));
 };
+
+/* Tell a first-time visitor what is being asked of them, rather than showing a
+   sample question they cannot use yet. */
+if (!haveKey()) {
+  bar.textContent = 'Passphrase required to begin';
+  $('go').textContent = 'Enter passphrase';
+}
 </script>
 </body>
 </html>

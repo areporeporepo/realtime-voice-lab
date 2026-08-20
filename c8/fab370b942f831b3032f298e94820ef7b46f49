@@ -1,0 +1,19 @@
+make_backchannels.py
+  s_b6590482fc13dc::t_6efecd27441308 29-32,34-37,39-40,42,58,60-67,70-71,79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "c8fab370b942f831b3032f298e94820ef7b46f49",
+  "prompts": {},
+  "sessions": {
+    "s_b6590482fc13dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d4bccff0-af0d-41ee-a6d3-0a19575667ad",
+        "model": "claude-opus-5"
+      },
+      "human_author": "anh nguyen <anh.nqqq@icloud.com>"
+    }
+  }
+}
